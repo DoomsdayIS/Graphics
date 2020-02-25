@@ -19,13 +19,25 @@ class PNMfile{
     uchar* picture;
     RGB* pictureRGB;
     void readP5(ifstream& fin){
-        uchar* pic = new uchar[width*height];
-        fin.read((char*)pic, width*height);
+        uchar* pic = new uchar;
+        fin.read((char*)pic, width*height - 1);
+        if (fin.eof()){
+            cout << "Хай, у тебя картинка битая";
+            fin.close();
+            exit(4);
+        }
+        fin.read((char*)pic, 1);
         picture = pic;
     }
     void readP6(ifstream& fin){
-        RGB* picRGB = new RGB[width*height];
-        fin.read((char*)picRGB,width*height*3);
+        RGB* picRGB = new RGB;
+        fin.read((char*)picRGB,width*height*3 - 3);
+        if (fin.eof()){
+            cout << "Хай, у тебя картинка битая";
+            fin.close();
+            exit(4);
+        }
+        fin.read((char*)picRGB,3);
         pictureRGB = picRGB;
     }
     void writeP5(ofstream& fout){
@@ -136,6 +148,21 @@ public:
     void read(ifstream& fin) {
         fin >> format >> width >> height >> deep;
         fin.read(&space, 1);
+        if(strncmp(format,"P6",2) != 0 and  strncmp(format,"P5",2) != 0){
+            cout << "Неверный формат изображения";
+            fin.close();
+            exit(1);
+        }
+        if (deep < 0 or deep > 255){
+            cout << "Неверная глубина изображения";
+            fin.close();
+            exit(2);
+        }
+        if (width < 1 or height < 1){
+            cout << "Неверные размеры изображения";
+            fin.close();
+            exit(3);
+        }
         if (format[1] == '6') {
             readP6(fin);
         } else {
